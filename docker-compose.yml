@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  nginx:
+    restart: always
+    image: nginx:stable-alpine
+    ports:
+      - "9090:80"
+    links:
+      - appserv
+    volumes:
+      - ./config/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./config/nginx/nginxconfig.io:/etc/nginx/nginxconfig.io:ro
+      - ./log/nginx:/var/log/nginx
+      #- ./cache/nginx:/var/cache/nginx
+      - ./mysite:/var/www/mysite
+  appserv:
+    build: .
+    volumes:
+      - ./uwsgi.ini:/var/www/uwsgi.ini:ro
+      - ./log/uwsgi:/var/log/uwsgi
+      - ./mysite:/var/www/mysite
+    command: uwsgi --ini /var/www/uwsgi.ini
+  #   depends_on:
+  #     - db
+  # db:
+  #   image: mongo
+  #   restart: always
